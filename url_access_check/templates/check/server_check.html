@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<ul id="tests">
+    {% for addr in tested_addresses %}
+        <li>{{ addr.address }} (Reachable: {{ addr.reachable }})</li>
+    {% endfor %}
+</ul>
+</body>
+
+</html>
