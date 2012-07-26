@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="{{ STATIC_URL }}js/jquery-1.4.3.min.js"></script>
+    <style>
+        #tests li{
+            list-style-type: none;
+        }
+
+        #tests .server{
+            background-color: #c0c0c0;
+            padding: 5px;
+        }
+
+        #tests .browser{
+            background-color: #c0c0c0;
+            padding: 5px;
+        }
+
+        .hidden_iframe{
+            display:none;
+        }
+        .disc{
+            margin-top: 3px;
+            margin-left: 6px;
+            margin-right: 10px;
+            border-radius: 5px;
+            float: left;
+            height: 10px;
+            width: 10px;
+        }
+
+        .true, .True{
+            background-color: green;
+        }
+        .false, .False{
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+
+    {% for url in urls_browser %}
+        <iframe src="{{ url.address }}" class="hidden_iframe" data_reachable="false" id="url_{{ url.id }}"></iframe>
+    {% endfor %}
+
+    <ul id="tests">
+        <li class="server">Server</li>
+    {% for addr in tested_addresses %}
+        <li><div class="disc {{ addr.reachable }}">&nbsp;</div>{{ addr.address }}</li>
+    {% endfor %}
+        <li class="browser">Client</li>
+    </ul>
+</body>
+<script>
+
+$(function() {
+   $(".hidden_iframe").load(function(event) {
+       event.target.attributes['data_reachable'].value=true;
+   });
+
+   $(window).load(function(event){
+       $.each( $(".hidden_iframe"), function(idx, iframe){
+           $("#tests").append("<li><div class=\"disc " +
+                   iframe.attributes['data_reachable'].value +
+                   "\">&nbsp;</div>" +
+                   iframe.src + "</li>");
+       });
+   });
+});
+
+
+</script>
+</html>
