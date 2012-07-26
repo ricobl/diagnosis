@@ -3,24 +3,17 @@
 
 from django.template.response import TemplateResponse
 from django.views.generic.base import View
+from django.http import HttpResponse
 
-
-from models import URL
+from models import URL, Fail
+from fail_handler import FailHandler
+from forms import FailedForm
 
 from ping import Ping
 
 class ManualURLCheck(View):
 
     def get(self, request):
-
-        print "USER [%s]" % request.user
-        print "HTTP_X_FORWARDED_FOR [%s]" % request.META.get('HTTP_X_FORWARDED_FOR')
-        print "REMOTE_ADDR [%s]" % request.META.get('REMOTE_ADDR')
-        print "GRUPS:"
-        for group in request.user.groups.all():
-            print "\tGROUP [%s]" % group.name
-
-
         urls_browser = URL.objects.filter(access_type__in=["*","B"])
         urls_server  = URL.objects.filter(access_type__in=["*","S"])
 
@@ -28,10 +21,15 @@ class ManualURLCheck(View):
 
         ping = Ping()
         for url in urls_server:
+            reachable = ping.isReachable(url.address)
+
             tested_addresses.append({
                                      'address': url.address,
-                                     'reachable': ping.isReachable(url.address)
+                                     'reachable': reachable
                                     })
+
+            if not reachable:
+                FailHandler().failed('S', request, url)
 
         context = {
                     'tested_addresses': tested_addresses,
@@ -45,22 +43,50 @@ class ServerURLCheck(View):
 
     def get(self, request):
 
-        print "HTTP_X_FORWARDED_FOR [%s]" % request.META.get('HTTP_X_FORWARDED_FOR')
-        print "REMOTE_ADDR [%s]" % request.META.get('REMOTE_ADDR')
-
         urls_server  = URL.objects.filter(access_type__in=["*","S"])
 
         tested_addresses = []
 
         ping = Ping()
         for url in urls_server:
+            reachable = ping.isReachable(url.address)
             tested_addresses.append({
                 'address': url.address,
-                'reachable': ping.isReachable(url.address)
+                'reachable': reachable
             })
+
+            if not reachable:
+                FailHandler().failed('S', request, url)
+
 
         context = {
             'tested_addresses': tested_addresses
         }
 
         return TemplateResponse(request, 'check/server_check.html', context=context)
+
+
+class Failed(View):
+    def post(self, request):
+
+
+        try:
+            url = URL.objects.get(pk=request.POST.get("url_id"))
+
+            FailHandler().failed('B', request, url)
+
+            return HttpResponse(u'DONE', mimetype='text/plain', status=200)
+        except URL.DoesNotExist:
+            return HttpResponse(u'ERROR URL not registered at diagnosis', mimetype='text/plain', status=404)
+
+        except Exception, err:
+            return HttpResponse(u'ERROR %s' % err.message, mimetype='text/plain', status=500)
+
+    def get(self, request):
+
+        fails = Fail.objects.count()
+
+        if not fails:
+            return HttpResponse(u'NONE', mimetype='text/plain', status=200)
+        else:
+            return HttpResponse(u'%d FAILS' % fails, mimetype='text/plain', status=500)
