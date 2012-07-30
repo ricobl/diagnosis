@@ -36,7 +36,7 @@ class ManualURLCheck(View):
                     'urls_browser': urls_browser
                   }
 
-        return TemplateResponse(request, 'check/manual_check.html', context=context)
+        return TemplateResponse(request, 'url_access_check/manual_check.html', context=context)
 
 
 class ServerURLCheck(View):
@@ -63,7 +63,7 @@ class ServerURLCheck(View):
             'tested_addresses': tested_addresses
         }
 
-        return TemplateResponse(request, 'check/server_check.html', context=context)
+        return TemplateResponse(request, 'url_access_check/server_check.html', context=context)
 
 
 class Failed(View):
