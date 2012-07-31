@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
 <body>
-
-<ul id="tests">
+<pre>
     {% for addr in tested_addresses %}
-        <li>{{ addr.address }} (Reachable: {{ addr.reachable }})</li>
+        {{ addr.address }} - Reachable: {{ addr.reachable }}
     {% endfor %}
-</ul>
+</pre>
 </body>
 
 </html>

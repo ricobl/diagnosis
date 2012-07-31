@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script>
+        var csrf_token = "{{ csrf_token }}";
+    </script>
     <script src="{{ STATIC_URL }}url_access_check/js/jquery-1.4.3.min.js"></script>
+    <script src="{{ STATIC_URL }}url_access_check/js/manual_check.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}url_access_check/css/url_access_check.css" />
 </head>
 <body>
@@ -17,36 +21,4 @@
         <li class="browser">Client</li>
     </ul>
 </body>
-<script>
-
-$(function() {
-   $(".hidden_iframe").load(function(event) {
-       event.target.attributes['data_reachable'].value=true;
-   });
-
-   $(window).load(function(event){
-       $.each( $(".hidden_iframe"), function(idx, iframe){
-           $("#tests").append("<li><div class=\"disc " +
-                   iframe.attributes['data_reachable'].value +
-                   "\">&nbsp;</div>" +
-                   iframe.src + "</li>");
-
-           if (iframe.attributes['data_reachable'].value == "false"){
-               $.ajax({
-                   url:'/diagnosis/url/failed',
-                   type:'POST',
-                   data: {
-                       url_id: iframe.id.replace("url_","")
-                   },
-                   beforeSend: function(xhr) {
-                      xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-                   }
-               });
-           }
-       });
-   });
-});
-
-
-</script>
 </html>

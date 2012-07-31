@@ -38,6 +38,17 @@ class ManualURLCheck(View):
 
         return TemplateResponse(request, 'url_access_check/manual_check.html', context=context)
 
+class RandomClientURLCheck(View):
+
+    def get(self, request):
+        urls_browser = URL.objects.filter(access_type__in=["*","B"]).order_by('?')[:3]
+
+        context = {
+            'urls_browser': urls_browser
+        }
+
+        return TemplateResponse(request, 'url_access_check/random_check.js', context=context)
+
 
 class ServerURLCheck(View):
 
