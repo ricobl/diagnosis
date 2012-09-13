@@ -5,11 +5,10 @@ from django.template.response import TemplateResponse
 from django.views.generic.base import View
 from django.http import HttpResponse
 
-from models import URL, Fail
-from fail_handler import FailHandler
-from forms import FailedForm
+from url_access_check.models import URL, Fail
+from url_access_check.fail_handler import FailHandler
 
-from ping import Ping
+from url_access_check.ping import Ping
 
 class ManualURLCheck(View):
 
