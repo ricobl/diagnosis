@@ -15,7 +15,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'diagnosis',
+        'NAME': 'diagnosis.sqlite',
     }
 }
 
